@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/* read keeps iterating i cannot call it twice
+/* read keeps iterating so i cannot call it twice
   */
 
 size_t	ft_strlen(const char *str)
@@ -66,117 +66,126 @@ size_t	ft_strlcpy(char *dest, const char *src, size_t size)
 	}
 }
 
-char	*ft_substr(char const *s, unsigned int start, size_t len)
-{
-	char	*ptr;
-
-	if (start >= ft_strlen(s))
-	{
-		ptr = ft_calloc(1, 1);
-		if (!ptr)
-			return (NULL);
-		return (ptr);
-	}
-	if (len + start > ft_strlen(s))
-	{
-		ptr = ft_calloc(ft_strlen(s) + 1 - start, 1);
-		if (!ptr)
-			return (NULL);
-		ft_strlcpy(ptr, s + start, ft_strlen(s) + 1 - start);
-	}
-	else
-	{
-		ptr = ft_calloc(len + 1, 1);
-		if (!ptr)
-			return (NULL);
-		ft_strlcpy(ptr, s + start, len + 1);
-	}
-	return (ptr);
-}
-
-char write_to_buffer(char *buf, buf_size)
+int	search_new_line(const char *s, int buf_size)
 {
   int i;
-  char c;
 
   i = 0;
-  read(fd, &c, 1);
-  while (c != '\n' && i < buf_size)
-  {
-    buf[i] = c;
-    // printf("%c\n", c);
-    read(fd, &c, 1);
-    i++;
-  }
-  return (c);
+	while (i <= buf_size)
+	{
+		if (((char *)s)[i] == '\n')
+			return (i);
+		i++;
+	}
+	return (i);
 }
+
+size_t	ft_strlcat(char *dest, const char *src, size_t size)
+{
+	size_t	i;
+	size_t	j;
+	size_t	result;
+
+	i = 0;
+	j = 0;
+	if (size > ft_strlen(dest))
+		result = ft_strlen(src) + ft_strlen(dest);
+	else
+		return (ft_strlen(src) + size);
+	while (dest[i] != '\0')
+		i++;
+	if (size != 0)
+	{
+		while (src[j] != '\0' && i < size - 1)
+		{
+			dest[i] = src[j];
+			i++;
+			j++;
+		}
+		dest[i] = '\0';
+	}
+	return (result);
+}
+
+char *buf_to_str(char *str, char *buf, int buf_size, int iteration, int end)
+{
+  char *str_new;
+
+  str_new = ft_calloc(buf_size * iteration + end + 1, 1);
+  ft_strlcpy(str_new, str, ft_strlen(str) + 1);
+  ft_strlcat(str_new, buf, buf_size * iteration + end + 1);
+  free (str);
+  return (str_new);
+}
+
 
 char *get_next_line(int fd)
 {
   int buf_size;
   char *buf;
   char *str;
-  char c;
+  char *str2;
+  int i;
+  static int position;
+  int next_line;
+  int iteration;
+  int beginning;
 
-  buf_size = 20;
-  buf = malloc(buf_size);
-  c = 0;
-  while (c != '\n')
+  buf_size = 4;
+  next_line = 0;
+  i = 0;
+  beginning = 0;
+  iteration = 1;
+  printf("Position is: %i\n", position);
+  if (position == 0)
   {
-    c = write_to_buffer(buf, buf_size);
+    buf = ft_calloc(buf_size, 1);
+    printf("Buffer allocated\n");
+    read(fd, buf, buf_size);
+    printf("Buffer read\n");
+  }
+  /*condition that tests if next line is already stored in buffer */
+  if (search_new_line(buf + position, buf_size) < buf_size)
+  {
+    printf("New line found in buffer\n");
+    next_line = search_new_line(buf + position, buf_size);
+    printf("End of next line is %i\n", next_line + position);
+    printf("Line lenght is %i\n", next_line);
+    str = ft_calloc(next_line + 1, 1);
+    ft_strlcpy(str, buf + position, next_line + 2);
+    printf("Line is: %s\n", str);
+    position = position + next_line + 1;
+    return (str);
+  }
+  else
+  {
     str = ft_calloc(buf_size, 1);
-    ft_strlcpy(str, buf, buf_size);
+    if (position != 0)
+      beginning = buf_size - position;
+    /*condition that handles if no next line is in buffer */
+    while (search_new_line(buf + position, buf_size) - 1 == buf_size)
+    {
+      printf("Buffer is: %s\n", buf);
+      str = buf_to_str(str, buf + position, buf_size, iteration, beginning);
+      if (position != 0)
+          iteration --;
+      printf("Current string is: %s\n", str);
+      iteration++;
+      read(fd, buf, buf_size);
+      printf("Buffer read\n");
+      position = 0;
+      printf("Iteration count: %i\n", iteration);
+    }
+    printf("Iteration count is: %i\n", iteration);
+    next_line = search_new_line(buf + position, buf_size);
+    printf("Last line is: %i chars long\n", next_line);
+    str = buf_to_str(str, buf, buf_size, iteration - 1, next_line + 1 + beginning); // + 1 for the newline
+    printf("Line is: %s\n", str);
+    position = next_line + 1;
+    printf("Position is: %i\n", position);
   }
 }
 
-
-// char *get_next_line(int fd)
-// {
-//   int buf_size;
-//   char c;
-//   int i;
-//   char *buf;
-//   char *str;
-//
-//   buf_size = 20;
-//   i = 0;
-//   buf = malloc(buf_size);
-//   read(fd, &c, 1);
-//   while (c != '\n' && i < buf_size)
-//   {
-//     buf[i] = c;
-//     // printf("%c\n", c);
-//     read(fd, &c, 1);
-//     i++;
-//   }
-//   // printf("%s\n", buf);
-//   // printf("%i\n", i);
-//   // printf("%c\n", c);
-//   if (c != '\n')
-//   {
-//     str = ft_calloc((i + 1)*2, 1);
-//     ft_strlcpy(str, buf, i + 1);
-//     printf("%s\n", str);
-//     buf = ft_calloc(buf_size, 1);
-//     i = 0;
-//     while (c != '\n')
-//     {
-//       buf[i] = c;
-//       read(fd, &c, 1);
-//       i++;
-//     }
-//     printf("%s\n", buf);
-//     printf("%i\n", i);
-//     ft_strlcpy(str + buf_size, buf, i + 1);
-//   }
-//   else
-//   {
-//     str = malloc(i + 1);
-//     ft_strlcpy(str, buf, i + 1);
-//   }
-//   free(buf);
-//   printf("%s\n", str);
-// }
 
 #include <fcntl.h>
 
@@ -187,6 +196,7 @@ int main()
   fd = open("test", O_RDONLY);
   get_next_line(fd);
   get_next_line(fd);
+  // get_next_line(fd);
   // printf("%s\n", get_next_line(fd));
   close(fd);
 }
