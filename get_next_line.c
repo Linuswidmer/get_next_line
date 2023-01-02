@@ -66,19 +66,6 @@ size_t	ft_strlcpy(char *dest, const char *src, size_t size)
 	}
 }
 
-int	search_new_line(const char *s, int buf_size)
-{
-  int i;
-
-  i = 0;
-	while (i <= buf_size)
-	{
-		if (((char *)s)[i] == '\n')
-			return (i);
-		i++;
-	}
-	return (i);
-}
 
 size_t	ft_strlcat(char *dest, const char *src, size_t size)
 {
@@ -107,6 +94,20 @@ size_t	ft_strlcat(char *dest, const char *src, size_t size)
 	return (result);
 }
 
+int	search_new_line(const char *s, int buf_size)
+{
+  int i;
+
+  i = 0;
+	while (i <= buf_size)
+	{
+		if (((char *)s)[i] == '\n')
+			return (i);
+		i++;
+	}
+	return (i);
+}
+
 char *buf_to_str(char *str, char *buf, int buf_size, int iteration, int end)
 {
   char *str_new;
@@ -118,24 +119,72 @@ char *buf_to_str(char *str, char *buf, int buf_size, int iteration, int end)
   return (str_new);
 }
 
+char *no_line_in_buffer(char *buf, int *pos, int buf_size, int fd)
+{
+  int beginning;
+  int position;
+  int iteration;
+  int next_line;
+  char *str;
+
+  iteration = 1;
+  beginning = 0;
+  next_line = 0;
+  position = *pos;
+  str = ft_calloc(buf_size, 1);
+  if (!str)
+    return (NULL);
+  if (position != 0)
+    beginning = buf_size - position;
+  while (search_new_line(buf + position, buf_size) - 1 == buf_size)
+  {
+    printf("Buffer is: %s\n", buf);
+    str = buf_to_str(str, buf + position, buf_size, iteration, beginning);
+    if (position != 0)
+       iteration --;
+    printf("Current string is: %s\n", str);
+    iteration++;
+    read(fd, buf, buf_size);
+    printf("Buffer read\n");
+    position = 0;
+    printf("Iteration count: %i\n", iteration);
+  }
+  printf("Iteration count is: %i\n", iteration);
+  next_line = search_new_line(buf + position, buf_size);
+  printf("Last line is: %i chars long\n", next_line);
+  str = buf_to_str(str, buf, buf_size, iteration - 1, next_line + 1 + beginning); // + 1 for the newline
+  printf("Line is: %s\n", str);
+  *pos = next_line + 1;
+  printf("Position is: %i\n", position);
+}
+
+char *line_in_buffer(char *buf, int *pos, int buf_size)
+{
+  int next_line;
+  char *str;
+  int  position;
+
+  position = *pos;
+  printf("New line found in buffer\n");
+  next_line = search_new_line(buf + position, buf_size);
+  printf("End of next line is %i\n", next_line + position);  
+  printf("Line lenght is %i\n", next_line);
+  str = ft_calloc(next_line + 1, 1);
+  if (!str)
+    return (NULL);
+  ft_strlcpy(str, buf + position, next_line + 2);
+  printf("Line is: %s\n", str);
+  *pos = position + next_line + 1;
+  return (str);
+}
 
 char *get_next_line(int fd)
 {
   int buf_size;
   char *buf;
-  char *str;
-  char *str2;
-  int i;
   static int position;
-  int next_line;
-  int iteration;
-  int beginning;
 
-  buf_size = 4;
-  next_line = 0;
-  i = 0;
-  beginning = 0;
-  iteration = 1;
+  buf_size = 50;
   printf("Position is: %i\n", position);
   if (position == 0)
   {
@@ -144,45 +193,13 @@ char *get_next_line(int fd)
     read(fd, buf, buf_size);
     printf("Buffer read\n");
   }
-  /*condition that tests if next line is already stored in buffer */
   if (search_new_line(buf + position, buf_size) < buf_size)
   {
-    printf("New line found in buffer\n");
-    next_line = search_new_line(buf + position, buf_size);
-    printf("End of next line is %i\n", next_line + position);
-    printf("Line lenght is %i\n", next_line);
-    str = ft_calloc(next_line + 1, 1);
-    ft_strlcpy(str, buf + position, next_line + 2);
-    printf("Line is: %s\n", str);
-    position = position + next_line + 1;
-    return (str);
+    return(line_in_buffer(buf, &position, buf_size));
   }
   else
   {
-    str = ft_calloc(buf_size, 1);
-    if (position != 0)
-      beginning = buf_size - position;
-    /*condition that handles if no next line is in buffer */
-    while (search_new_line(buf + position, buf_size) - 1 == buf_size)
-    {
-      printf("Buffer is: %s\n", buf);
-      str = buf_to_str(str, buf + position, buf_size, iteration, beginning);
-      if (position != 0)
-          iteration --;
-      printf("Current string is: %s\n", str);
-      iteration++;
-      read(fd, buf, buf_size);
-      printf("Buffer read\n");
-      position = 0;
-      printf("Iteration count: %i\n", iteration);
-    }
-    printf("Iteration count is: %i\n", iteration);
-    next_line = search_new_line(buf + position, buf_size);
-    printf("Last line is: %i chars long\n", next_line);
-    str = buf_to_str(str, buf, buf_size, iteration - 1, next_line + 1 + beginning); // + 1 for the newline
-    printf("Line is: %s\n", str);
-    position = next_line + 1;
-    printf("Position is: %i\n", position);
+    return(no_line_in_buffer(buf, &position, buf_size, fd));
   }
 }
 
@@ -196,7 +213,7 @@ int main()
   fd = open("test", O_RDONLY);
   get_next_line(fd);
   get_next_line(fd);
-  // get_next_line(fd);
+  get_next_line(fd);
   // printf("%s\n", get_next_line(fd));
   close(fd);
 }
