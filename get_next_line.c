@@ -68,10 +68,10 @@ char *no_line_in_buffer(char *buf, int *position, int fd)
   while (search_new_line(buf + *position) - 1 == BUFFER_SIZE && read_return != 0)
   {
     printf("New Buffer is: %s\n", buf);
-    str = buf_to_str(str, buf, read_return + 1);
+    str = buf_to_str(str, buf, read_return);
     printf("Current string is: %s\n", str);
     ft_bzero(buf, BUFFER_SIZE);
-    read_return = read(fd, buf, BUFFER_SIZE) == BUFFER_SIZE ;
+    read_return = read(fd, buf, BUFFER_SIZE);
   }
 
   return(line_in_buffer(buf, position, str));
