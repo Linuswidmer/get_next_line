@@ -29,10 +29,8 @@ int	search_new_line(const char *s)
   int i;
 
   i = 0;
-	while (i <= BUFFER_SIZE)
+	while (s[i] != '\n' && i <= BUFFER_SIZE)
 	{
-		if (((char *)s)[i] == '\n')
-			return (i);
 		i++;
 	}
 	return (i);
@@ -42,15 +40,11 @@ char *buf_to_str(char *str, char *buf, int size)
 {
   char *str_new;
 
-  if (size == 0)
-    return (NULL);
+  // if (size == 0)
+  //   return (NULL);
   str_new = ft_calloc(ft_strlen(str) + size + 1, 1);
   ft_strlcpy(str_new, str, ft_strlen(str) + 1);
   ft_strlcat(str_new, buf, ft_strlen(str) + size + 1);
-  printf("Line length is: %i\n", size);
-  printf("Allocation for new string is %i\n", ft_strlen(str) + size + 1);
-  printf("STR is %s\n", str);
-  printf("STR_NEW is %s\n", str_new);
   free (str);
   return (str_new);
 }
@@ -60,24 +54,21 @@ char *line_in_buffer(char *buf, char *str, ssize_t read_return)
   int next_line;
   int buf_len;
 
-  printf("Read return is: %i\n", read_return);
-  if (read_return == 0 && ft_strlen(str) == 0)
-    return (NULL);
-  else if (read_return == 0)
-  {
-    ft_bzero(buf, ft_strlen(buf));
-    return (str);
-  }
-  else if (read_return < BUFFER_SIZE)
-      next_line = read_return;
-  else
-    next_line = search_new_line(buf) + 1;
+  printf("Line in Buffer\n");
+  // if (read_return == 0 && ft_strlen(str) == 0)
+  //   return (NULL);
+  // else if (read_return == 0)
+  // {
+  //   ft_bzero(buf, ft_strlen(buf));
+  //   return (str);
+  // }
+  // else if (read_return < BUFFER_SIZE && search_new_line(buf) == ft_strlen(buf))
+  //     next_line = read_return;
+  // else
+  //   next_line = search_new_line(buf) + 1;
+  next_line = search_new_line(buf) + 1;
 
-  printf("New line found in buffer\n");
-  printf("Buffer with newline is: %s\n", buf);
   buf_len = ft_strlen(buf);
-  printf("End of next line is %i\n", next_line);  
-  printf("Line lenght is %i\n", next_line);
   str = buf_to_str(str, buf, next_line); // + 1 for the newline
   buf = ft_memmove(buf, buf + next_line, buf_len - next_line);
   ft_bzero(buf + (buf_len - next_line), next_line);
@@ -93,15 +84,12 @@ char *no_line_in_buffer(char *buf, ssize_t read_return, int fd)
   if (!str)
     return (NULL);
   str = buf_to_str(str, buf, ft_strlen(buf));
-  printf("Current string is: %s\n", str);
+  printf("%s\n", str);
+  ft_bzero(buf, BUFFER_SIZE);
   read_return = read(fd, buf, BUFFER_SIZE);
-  printf("Read return is %i\n", read_return);
-  printf("New Buffer is: %s\n", buf);
   while (search_new_line(buf) - 1 == BUFFER_SIZE && read_return == BUFFER_SIZE)
   {
-    printf("New Buffer is: %s\n", buf);
     str = buf_to_str(str, buf, read_return);
-    printf("Current string is: %s\n", str);
     ft_bzero(buf, BUFFER_SIZE);
     read_return = read(fd, buf, BUFFER_SIZE);
   }
