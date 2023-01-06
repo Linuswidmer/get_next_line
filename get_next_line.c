@@ -40,8 +40,6 @@ char *buf_to_str(char *str, char *buf, int size)
 {
   char *str_new;
 
-  // if (size == 0)
-  //   return (NULL);
   str_new = ft_calloc(ft_strlen(str) + size + 1, 1);
   ft_strlcpy(str_new, str, ft_strlen(str) + 1);
   ft_strlcat(str_new, buf, ft_strlen(str) + size + 1);
@@ -76,7 +74,10 @@ char *no_line_in_buffer(char *buf, int fd)
   ft_bzero(buf, BUFFER_SIZE);
   read_return = read(fd, buf, BUFFER_SIZE);
   if (read_return == 0 && ft_strlen(str) == 0)
+  {
+    free(str);
     return (NULL);
+  }
   while (search_new_line(buf) - 1 == BUFFER_SIZE && read_return == BUFFER_SIZE)
   {
     str = buf_to_str(str, buf, read_return);
