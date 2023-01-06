@@ -24,12 +24,12 @@ void	*ft_memmove(void *dest, const void *src, size_t n)
 	return (dest);
 }
 
-int	search_new_line(const char *s)
+size_t	search_new_line(const char *s)
 {
-  int i;
+  size_t i;
 
   i = 0;
-	while (s[i] != '\n' && i <= BUFFER_SIZE)
+	while (s[i] != '\n' && i < ft_strlen(s))
 	{
 		i++;
 	}
@@ -78,7 +78,7 @@ char *no_line_in_buffer(char *buf, int fd)
     free(str);
     return (NULL);
   }
-  while (search_new_line(buf) - 1 == BUFFER_SIZE && read_return == BUFFER_SIZE)
+  while (search_new_line(buf) == BUFFER_SIZE && read_return == BUFFER_SIZE)
   {
     str = buf_to_str(str, buf, read_return);
     ft_bzero(buf, BUFFER_SIZE);
@@ -100,17 +100,19 @@ char *get_next_line(int fd)
   char *str;
   static char *buf;
 
-  if (BUFFER_SIZE == 0)
+  if (BUFFER_SIZE == 0 || fd < 0)
     return (NULL);
   if (!buf)
   {
     // printf("Buffer read\n");
-    buf = ft_calloc(BUFFER_SIZE, 1);
+    buf = ft_calloc(BUFFER_SIZE + 1, 1);
     if (!buf)
       return (NULL);
     read(fd, buf, BUFFER_SIZE);
   }
-  if (search_new_line(buf) < BUFFER_SIZE)
+  // printf("SNL:%li\n",search_new_line(buf));
+  // printf("STRLEN: %li\n", ft_strlen(buf));
+  if (search_new_line(buf) < ft_strlen(buf))
   {
     str = ft_calloc(1,1);
     if (!str)
@@ -127,24 +129,37 @@ char *get_next_line(int fd)
 int main(int argc, char **argv)
 {
   int fd;
-  char *buf;
-  ssize_t read_return;
-
+  char *str1;
+  char *str2;
+  char *str3;
+  char *str4;
+  char *str5;
+  char *str6;
+  char *str7;
+  
   (void)argc;
   fd = open(argv[1], O_RDONLY);
-  // buf = ft_calloc(BUFFER_SIZE, 1);
-  // read_return = read(fd, buf, BUFFER_SIZE);
-  // printf("Read return is: %i\n", read_return);
-  // if (read_return == 5)
-  //   printf("sdfkdahsf\n");
-  printf("Line is: %s\n", get_next_line(fd));
-  printf("Line is: %s\n", get_next_line(fd));
-  printf("Line is: %s\n", get_next_line(fd));
-  printf("Line is: %s\n", get_next_line(fd));
-  printf("Line is: %s\n", get_next_line(fd));
-  printf("Line is: %s\n", get_next_line(fd));
-  printf("Line is: %s\n", get_next_line(fd));
-  printf("Line is: %s\n", get_next_line(fd));
+  str1 = get_next_line(fd);
+  str2 = get_next_line(fd);
+  str3 = get_next_line(fd);
+  str4 = get_next_line(fd);
+  str5 = get_next_line(fd);
+  str6 = get_next_line(fd);
+  str7 = get_next_line(fd);
+  printf("Line is: %s\n", str1);
+  printf("Line is: %s\n", str2);
+  printf("Line is: %s\n", str3);
+  printf("Line is: %s\n", str4);
+  printf("Line is: %s\n", str5);
+  printf("Line is: %s\n", str6);
+  printf("Line is: %s\n", str7);
+  free(str1);
+  free(str2);
+  free(str3);
+  free(str4);
+  free(str5);
+  free(str6);
+  free(str7);
   // printf("Line is: %s\n", get_next_line(fd));
   // printf("Line is: %s\n", get_next_line(fd));
   // printf("%s\n", get_next_line(fd));

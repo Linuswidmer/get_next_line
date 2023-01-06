@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+char *get_next_line(int fd);
 size_t ft_strlen(const char *str);
 void ft_bzero(void *s, size_t n);
 void *ft_calloc(size_t nmeb, size_t size);
