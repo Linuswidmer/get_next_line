@@ -49,25 +49,13 @@ char *buf_to_str(char *str, char *buf, int size)
   return (str_new);
 }
 
-char *line_in_buffer(char *buf, char *str, ssize_t read_return)
+char *line_in_buffer(char *buf, char *str)
 {
   int next_line;
   int buf_len;
 
-  printf("Line in Buffer\n");
-  // if (read_return == 0 && ft_strlen(str) == 0)
-  //   return (NULL);
-  // else if (read_return == 0)
-  // {
-  //   ft_bzero(buf, ft_strlen(buf));
-  //   return (str);
-  // }
-  // else if (read_return < BUFFER_SIZE && search_new_line(buf) == ft_strlen(buf))
-  //     next_line = read_return;
-  // else
-  //   next_line = search_new_line(buf) + 1;
+  // printf("Line in Buffer\n");
   next_line = search_new_line(buf) + 1;
-
   buf_len = ft_strlen(buf);
   str = buf_to_str(str, buf, next_line); // + 1 for the newline
   buf = ft_memmove(buf, buf + next_line, buf_len - next_line);
@@ -75,56 +63,61 @@ char *line_in_buffer(char *buf, char *str, ssize_t read_return)
   return (str);
 }
 
-char *no_line_in_buffer(char *buf, ssize_t read_return, int fd)
+char *no_line_in_buffer(char *buf, int fd)
 {
   char *str;
+  ssize_t read_return;
 
-  printf("No Line in buffer\n");
+  // printf("No Line in buffer\n");
   str = ft_calloc(ft_strlen(buf) + 1, 1);
   if (!str)
     return (NULL);
   str = buf_to_str(str, buf, ft_strlen(buf));
-  printf("%s\n", str);
   ft_bzero(buf, BUFFER_SIZE);
   read_return = read(fd, buf, BUFFER_SIZE);
+  if (read_return == 0 && ft_strlen(str) == 0)
+    return (NULL);
   while (search_new_line(buf) - 1 == BUFFER_SIZE && read_return == BUFFER_SIZE)
   {
     str = buf_to_str(str, buf, read_return);
     ft_bzero(buf, BUFFER_SIZE);
     read_return = read(fd, buf, BUFFER_SIZE);
   }
-  return(line_in_buffer(buf, str, read_return));
+  if (read_return < BUFFER_SIZE)
+  {
+    str = buf_to_str(str, buf, read_return);
+    ft_bzero(buf, read_return);
+    return (str);
+  }
+  else
+    return(line_in_buffer(buf, str));
 }
 
 
 char *get_next_line(int fd)
 {
-  ssize_t read_return;
   char *str;
   static char *buf;
 
-  read_return = 0;
   if (BUFFER_SIZE == 0)
     return (NULL);
   if (!buf)
   {
-    printf("Buffer read\n");
+    // printf("Buffer read\n");
     buf = ft_calloc(BUFFER_SIZE, 1);
     if (!buf)
       return (NULL);
-    read_return = read(fd, buf, BUFFER_SIZE);
+    read(fd, buf, BUFFER_SIZE);
   }
   if (search_new_line(buf) < BUFFER_SIZE)
   {
     str = ft_calloc(1,1);
     if (!str)
       return (NULL);
-    return(line_in_buffer(buf, str, read_return));
+    return(line_in_buffer(buf, str));
   }
   else
-  {
-    return(no_line_in_buffer(buf, read_return, fd));
-  }
+    return(no_line_in_buffer(buf, fd));
 }
 
 
