@@ -44,25 +44,29 @@ void	*ft_calloc(size_t nmeb, size_t size)
 	return (ptr);
 }
 
-size_t	ft_strlcpy(char *dest, const char *src, size_t size)
+void	*ft_memmove(void *dest, const void *src, size_t n)
 {
-	size_t	index;
+	size_t	i;
 
-	index = 0;
-	if (size == 0)
-		return (ft_strlen(src));
-	else
+	i = 0;
+	if (dest && src)
 	{
-		while (index < (size - 1) && src[index] != '\0')
+		if (dest >= src)
 		{
-			dest[index] = src[index];
-			index++;
+			while (n-- > 0)
+				((char *)dest)[n] = ((char *)src)[n];
 		}
-		dest[index] = '\0';
-		return (ft_strlen(src));
+		else
+		{
+			while (i < n)
+			{
+				((char *)dest)[i] = ((char *)src)[i];
+				i++;
+			}
+		}
 	}
+	return (dest);
 }
-
 
 size_t	ft_strlcat(char *dest, const char *src, size_t size)
 {
