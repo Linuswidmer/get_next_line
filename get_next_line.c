@@ -34,7 +34,6 @@ static char *line_in_buffer(char *buf, char *str)
   int next_line;
   int buf_len;
 
-  // printf("Line in Buffer\n");
   next_line = search_new_line(buf) + 1;
   buf_len = ft_strlen(buf);
   str = buf_to_str(str, buf, next_line);
@@ -60,14 +59,14 @@ static char *no_line_in_buffer(char *buf, int fd)
     ft_bzero(buf, BUFFER_SIZE);
     read_return = read(fd, buf, BUFFER_SIZE);
   }
-  if (read_return < BUFFER_SIZE)
+  if (search_new_line(buf) < read_return)
+    return (line_in_buffer(buf, str));
+  else 
   {
     str = buf_to_str(str, buf, read_return);
     ft_bzero(buf, read_return);
     return (str);
   }
-  else
-    return(line_in_buffer(buf, str));
 }
 
 
@@ -77,7 +76,7 @@ char *get_next_line(int fd)
   static char *buf;
 
   str = NULL;
-  if (BUFFER_SIZE > 0 && fd > 0)
+  if (BUFFER_SIZE > 0 && fd >= 0)
   {
     if (!buf)
     {
@@ -111,35 +110,35 @@ int main(int argc, char **argv)
   char *str4;
   char *str5;
   char *str6;
-  char *str7;
-  char *str8;
+  // char *str7;
+  // char *str8;
   
   (void)argc;
   fd = open(argv[1], O_RDONLY);
   str1 = get_next_line(fd);
-  str2 = get_next_line(fd);
-  str3 = get_next_line(fd);
-  str4 = get_next_line(fd);
-  str5 = get_next_line(fd);
-  str6 = get_next_line(fd);
-  str7 = get_next_line(fd);
-  str8 = get_next_line(fd);
   printf("Line is: %s\n", str1);
+  str2 = get_next_line(fd);
   printf("Line is: %s\n", str2);
+  str3 = get_next_line(fd);
   printf("Line is: %s\n", str3);
+  str4 = get_next_line(fd);
   printf("Line is: %s\n", str4);
+  str5 = get_next_line(fd);
   printf("Line is: %s\n", str5);
+  str6 = get_next_line(fd);
   printf("Line is: %s\n", str6);
-  printf("Line is: %s\n", str7);
-  printf("Line is: %s\n", str8);
+  // str7 = get_next_line(fd);
+  // str8 = get_next_line(fd);
+  // printf("Line is: %s\n", str7);
+  // printf("Line is: %s\n", str8);
   free(str1);
   free(str2);
   free(str3);
   free(str4);
   free(str5);
   free(str6);
-  free(str7);
-  free(str8);
+  // free(str7);
+  // free(str8);
   // printf("Line is: %s\n", get_next_line(fd));
   // printf("Line is: %s\n", get_next_line(fd));
   // printf("%s\n", get_next_line(fd));
