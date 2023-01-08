@@ -59,7 +59,7 @@ static char *no_line_in_buffer(char *buf, int fd)
     ft_bzero(buf, BUFFER_SIZE);
     read_return = read(fd, buf, BUFFER_SIZE);
   }
-  if (search_new_line(buf) < read_return)
+  if (search_new_line(buf) < (unsigned long int)read_return)
     return (line_in_buffer(buf, str));
   else 
   {
@@ -83,7 +83,7 @@ char *get_next_line(int fd)
       buf = ft_calloc(BUFFER_SIZE + 1, 1);
       if (!buf)
         return (NULL);
-      read(fd, buf, BUFFER_SIZE);
+      printf("%li \n",read(fd, buf, BUFFER_SIZE));
     }
     if (search_new_line(buf) < ft_strlen(buf))
       str = line_in_buffer(buf, str);
@@ -121,6 +121,8 @@ int main(int argc, char **argv)
   printf("Line is: %s\n", str2);
   str3 = get_next_line(fd);
   printf("Line is: %s\n", str3);
+  close(fd);
+  fd = open(argv[1], O_RDONLY);
   str4 = get_next_line(fd);
   printf("Line is: %s\n", str4);
   str5 = get_next_line(fd);
