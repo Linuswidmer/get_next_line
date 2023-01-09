@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lwidmer <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/01/08 13:59:05 by lwidmer           #+#    #+#             */
+/*   Updated: 2023/01/09 09:33:42 by lwidmer          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
 size_t	ft_strlen(const char *str)
@@ -5,8 +17,8 @@ size_t	ft_strlen(const char *str)
 	size_t	i;
 
 	i = 0;
-  if (!str)
-    return (i);
+	if (!str)
+		return (i);
 	while (str[i] != '\0')
 		i++;
 	return (i);
@@ -25,23 +37,6 @@ void	ft_bzero(void *s, size_t n)
 			i++;
 		}
 	}
-}
-
-void	*ft_calloc(size_t nmeb, size_t size)
-{
-	void	*ptr;
-
-	if (size != 0 && nmeb > 2147483647 / size)
-		return (0);
-	if (nmeb != 0 && size > 2147483647 / nmeb)
-		return (0);
-	ptr = malloc(nmeb * size);
-	if (ptr)
-	{
-		ft_bzero(ptr, nmeb * size);
-		return (ptr);
-	}
-	return (ptr);
 }
 
 void	*ft_memmove(void *dest, const void *src, size_t n)
