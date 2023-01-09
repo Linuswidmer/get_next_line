@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*   get_next_line_utils_bonus.c                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lwidmer <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/01/08 13:59:05 by lwidmer           #+#    #+#             */
-/*   Updated: 2023/01/09 09:33:42 by lwidmer          ###   ########.fr       */
+/*   Created: 2023/01/09 11:51:53 by lwidmer           #+#    #+#             */
+/*   Updated: 2023/01/09 11:52:07 by lwidmer          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 void	free_buffer(char **buf)
 {

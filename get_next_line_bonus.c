@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lwidmer <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/01/08 14:10:56 by lwidmer           #+#    #+#             */
-/*   Updated: 2023/01/09 10:44:24 by lwidmer          ###   ########.fr       */
+/*   Created: 2023/01/09 11:50:59 by lwidmer           #+#    #+#             */
+/*   Updated: 2023/01/09 11:51:03 by lwidmer          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static size_t	search_new_line(const char *s)
 {
@@ -89,27 +89,27 @@ static char	*no_line_in_buffer(char *buf, int fd, ssize_t *read_return)
 char	*get_next_line(int fd)
 {
 	char		*str;
-	static char	*buf;
+	static char	*buf[1024];
 	ssize_t		read_return;
 
 	str = NULL;
 	read_return = 0;
 	if (BUFFER_SIZE > 0 && fd >= 0)
 	{
-		if (!buf)
+		if (!buf[fd])
 		{
-			buf = malloc(BUFFER_SIZE + 1);
-			if (!buf)
+			buf[fd] = malloc(BUFFER_SIZE + 1);
+			if (!buf[fd])
 				return (NULL);
-			ft_bzero(buf, BUFFER_SIZE + 1);
-			read_return = read(fd, buf, BUFFER_SIZE);
+			ft_bzero(buf[fd], BUFFER_SIZE + 1);
+			read_return = read(fd, buf[fd], BUFFER_SIZE);
 		}
-		if (search_new_line(buf) < ft_strlen(buf))
-			str = line_in_buffer(buf, str);
-		else if (ft_strlen(buf) > 0)
-			str = no_line_in_buffer(buf, fd, &read_return);
+		if (search_new_line(buf[fd]) < ft_strlen(buf[fd]))
+			str = line_in_buffer(buf[fd], str);
+		else if (ft_strlen(buf[fd]) > 0)
+			str = no_line_in_buffer(buf[fd], fd, &read_return);
 	}
-	if (buf != 0 && (ft_strlen(buf) == 0 || read_return == -1))
-		free_buffer(&buf);
+	if (buf[fd] != 0 && (ft_strlen(buf[fd]) == 0 || read_return == -1))
+		free_buffer(&(buf[fd]));
 	return (str);
 }
